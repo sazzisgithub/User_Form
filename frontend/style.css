@@ -41,6 +41,20 @@
         padding: 10px 20px;
     }
 
+    #getVerifiedBtn {
+        background: #28a745;
+        width: auto;
+        margin-top: 20px;
+        padding: 10px 20px;
+    }
+
+    #getRejectedBtn {
+        background: #df0707;
+        width: auto;
+        margin-top: 20px;
+        padding: 10px 20px;
+    }
+
     #userList {
         margin-top: 30px;
         width: 80%;

@@ -1,8 +1,10 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import UserDetail
-from .serializers import UserDetailSerializer
+from .models import UserDetail, UserVerification
+from .serializers import UserDetailSerializer, UserVerificationSerializer, UserVerificationCreateSerializer
+from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 @api_view(['POST'])
 def submit_form(request):
@@ -31,3 +33,78 @@ def get_users(request):
     serializer = UserDetailSerializer(users, many=True)
     return Response(serializer.data)
 
+
+
+@api_view(['POST'])
+def verify_user(request, user_id):
+    """
+    Mark a user as verified. Request body: {"verifier":"Name"}
+    """
+    serializer = UserVerificationCreateSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    verifier = serializer.validated_data['verifier']
+
+    user = get_object_or_404(UserDetail, userId=user_id)
+
+    # Create or update verification record
+    with transaction.atomic():
+        verification, created = UserVerification.objects.update_or_create(
+            user=user,
+            defaults={
+                'status': 'verified',
+                'verifier': verifier,
+            }
+        )
+
+    out = UserVerificationSerializer(verification)
+    return Response(out.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def reject_user(request, user_id):
+    """
+    Mark a user as rejected. Request body: {"verifier":"Name", "reason":"optional reason"}
+    """
+    serializer = UserVerificationCreateSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    verifier = serializer.validated_data['verifier']
+    reason = serializer.validated_data.get('reason', '')
+
+    user = get_object_or_404(UserDetail, userId=user_id)
+
+    with transaction.atomic():
+        verification, created = UserVerification.objects.update_or_create(
+            user=user,
+            defaults={
+                'status': 'rejected',
+                'verifier': verifier,
+                'reason': reason,
+            }
+        )
+
+    out = UserVerificationSerializer(verification)
+    return Response(out.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_verified_users(request):
+    """
+    Returns a list of users with verification.status == 'verified'
+    """
+    verifs = UserVerification.objects.filter(status='verified').select_related('user')
+    serializer = UserVerificationSerializer(verifs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+def get_rejected_users(request):
+    """
+    Returns a list of users with verification.status == 'rejected'
+    """
+    verifs = UserVerification.objects.filter(status='rejected').select_related('user')
+    serializer = UserVerificationSerializer(verifs, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
