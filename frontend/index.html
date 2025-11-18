@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Django Form API</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- (same form and button as you had)  -->
+  <form id="userForm">
+    <h2>Submit Your Details</h2>
+    <input type="text" id="name" name="name" placeholder="Name" required />
+    <input type="email" id="email" name="email" placeholder="Email" required />
+    <input type="number" id="age" name="age" placeholder="Age" required />
+    <input type="text" id="phone" name="phone" placeholder="Phone" required />
+    <textarea id="address" name="address" placeholder="Address" required></textarea>
+    <button type="submit">Submit</button>
+  </form>
+
+  <br><br>
+  <input type="text" id="searchUserId" placeholder="Enter User ID" />
+  <button onclick="searchUserById()" style="padding:8px 20px;">Search User</button>
+
+
+  <button id="getUsersBtn">Get All Users</button>
+
+  <div id="userList"></div>
+
+  <script src="api.js"></script>
+
+</body>
+
+</html>
