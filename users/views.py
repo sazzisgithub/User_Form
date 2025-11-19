@@ -18,22 +18,18 @@ def submit_form(request):
 @api_view(['GET'])
 def get_user_by_id(request, user_id):
     try:
-        user = UserDetail.objects.get(userId=user_id)
+        user = UserDetail.objects.get(userId= user_id)
 
         serializer = UserDetailSerializer(user)
         return Response(serializer.data)
     except UserDetail.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
-
-
 @api_view(['GET'])
 def get_users(request):
     users = UserDetail.objects.all()
     serializer = UserDetailSerializer(users, many=True)
     return Response(serializer.data)
-
-
 
 @api_view(['POST'])
 def verify_user(request, user_id):
@@ -60,7 +56,6 @@ def verify_user(request, user_id):
 
     out = UserVerificationSerializer(verification)
     return Response(out.data, status=status.HTTP_200_OK)
-
 
 @api_view(['POST'])
 def reject_user(request, user_id):
