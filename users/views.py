@@ -25,14 +25,6 @@ def get_user_by_id(request, user_id):
     except UserDetail.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
-# @api_view(['GET'])
-# def get_users(request):
-#     users = UserDetail.objects.all()
-#     serializer = UserDetailSerializer(users, many=True)
-#     return Response(serializer.data)
-
-
-
 @api_view(['GET'])
 def get_users(request):
     filter_type = request.GET.get("type", "all")
@@ -47,9 +39,6 @@ def get_users(request):
 
     elif filter_type == "rejected":
         users = UserDetail.objects.filter(verification__status="rejected")
-
-    # else:
-    #     users = UserDetail.objects.all()
 
     serializer = UserDetailSerializer(users, many=True)
     return Response(serializer.data)
