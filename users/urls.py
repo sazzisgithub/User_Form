@@ -12,4 +12,5 @@ urlpatterns = [
     path('user/<str:user_id>/reject/', views.reject_user),
     path('users/verified/', views.get_verified_users),
     path('users/rejected/', views.get_rejected_users),
+    path("user/<str:user_id>/delete/", views.delete_user, name="delete_user"),
 ]

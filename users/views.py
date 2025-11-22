@@ -25,11 +25,35 @@ def get_user_by_id(request, user_id):
     except UserDetail.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
 
+# @api_view(['GET'])
+# def get_users(request):
+#     users = UserDetail.objects.all()
+#     serializer = UserDetailSerializer(users, many=True)
+#     return Response(serializer.data)
+
+
+
 @api_view(['GET'])
 def get_users(request):
-    users = UserDetail.objects.all()
+    filter_type = request.GET.get("type", "all")
+
+    users = UserDetail.objects.select_related("verification").all()
+
+    if filter_type == "pending":
+        users = UserDetail.objects.filter(verification__isnull=True)
+
+    elif filter_type == "verified":
+        users = UserDetail.objects.filter(verification__status="verified")
+
+    elif filter_type == "rejected":
+        users = UserDetail.objects.filter(verification__status="rejected")
+
+    # else:
+    #     users = UserDetail.objects.all()
+
     serializer = UserDetailSerializer(users, many=True)
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 def verify_user(request, user_id):
@@ -103,3 +127,13 @@ def get_rejected_users(request):
     verifs = UserVerification.objects.filter(status='rejected').select_related('user')
     serializer = UserVerificationSerializer(verifs, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+def delete_user(request, user_id):
+    try:
+        user = UserDetail.objects.get(userId=user_id)
+        user.delete()
+        return Response({"message": "User deleted successfully!"}, status=200)
+    except UserDetail.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)

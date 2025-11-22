@@ -9,7 +9,7 @@
 
 <body>
 
-  <!-- (same form and button as you had)  -->
+  
   <form id="userForm">
     <h2>Submit Your Details</h2>
     <input type="text" id="name" name="name" placeholder="Name" required />
@@ -21,18 +21,23 @@
   </form>
 
   <br><br>
-  <input type="text" id="searchUserId" placeholder="Enter User ID" />
-  <button onclick="searchUserById()" style="padding:8px 20px;">Search User</button>
+  <input type="text" style="width:90vw;" id="searchUserId" placeholder="Enter User ID" />
+  <button onclick="searchUserById()" style="width:40vw; padding:8px 20px;">Search User</button>
 
 
-  <button id="getUsersBtn">Get All Users</button>
+  <!-- <button id="getUsersBtn">Get All Users</button> -->
 
-  <centre> <div id="userList">
-    <!-- Add next to Get All Users button in your existing HTML -->
-    <button id="getVerifiedBtn" >Get Verified</button>
-    <button id="getRejectedBtn" >Get Rejected</button>
+  <select id="filterSelect" style="width:91vw;" class="filter-dropdown">
+    <option value="">-- Select Filter --</option>
+    <option value = "user" >Get All Users</option>
+    <option value="verified">Get Verified Users</option>
+    <option value="rejected">Get Rejected Users</option>
+  </select>
 
-  </div> </centre>
+  <button id="applyFilterBtn" style="width:40vw;">Apply Filter</button>
+
+
+  <centre> <div id="userList"></div> </centre>
 
   <script src="api.js"></script>
 

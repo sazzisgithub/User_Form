@@ -8,9 +8,6 @@ const emailInput = document.getElementById("email");
 const ageInput = document.getElementById("age");
 const phoneInput = document.getElementById("phone");
 const addressInput = document.getElementById("address");
-// --- new selectors for verified/rejected buttons ---
-const getVerifiedBtn = document.getElementById('getVerifiedBtn');
-const getRejectedBtn = document.getElementById('getRejectedBtn');
 
 // RENDER JSON FUNCTION
 function showJSON(obj, title = 'Response Data') {
@@ -28,7 +25,6 @@ function showErrorText(text) {
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    // ⭐ FIXED — use correct input references
     const data = {
         name: nameInput.value.trim(),
         email: emailInput.value.trim(),
@@ -37,7 +33,7 @@ form.addEventListener('submit', async (e) => {
         address: addressInput.value.trim(),
     };
 
-    console.log("Sending data:", data); // Debug
+    console.log("Sending data:", data);
 
     try {
         const res = await fetch('http://127.0.0.1:8000/api/submit/', {
@@ -55,34 +51,6 @@ form.addEventListener('submit', async (e) => {
         }
     } catch (err) {
         showErrorText("Network error! Check your server.");
-    }
-});
-
-// ---------------- GET ALL USERS ----------------
-getUsersBtn.addEventListener('click', async () => {
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/users/');
-        const users = await res.json();
-
-        if (!users.length) {
-            userList.innerHTML = "<p>No users found.</p>";
-            return;
-        }
-
-        userList.innerHTML = "<h3>All Users</h3>" + users
-            .map(u => `
-                <div style="background:#fff;padding:10px;margin:5px;border-radius:5px;">
-                    <b>${u.name}</b> (${u.age})<br>
-                    <b>UserID:</b> ${u.userId}<br>
-                    Email: ${u.email}<br>
-                    Phone: ${u.phone}<br>
-                    Address: ${u.address}<br>
-                </div>
-            `)
-            .join("");
-
-    } catch (err) {
-        showErrorText("Failed to load users");
     }
 });
 
@@ -131,7 +99,7 @@ async function verifyUser(userId) {
         alert("Verification cancelled (verifier required).");
         return;
     }
-   
+
     const { ok, body } = await postVerificationAction(userId, 'verify', { verifier });
 
     if (ok) {
@@ -182,7 +150,8 @@ async function getAllUsers() {
                     Address: ${u.address}<br>
                     <div style="margin-top:8px; display: flex; display-direction: row;">
                         <button onclick="verifyUser('${u.userId}')" style="background: #28a745; padding:6px 12px;margin-right:6px;">Verify</button>
-                        <button onclick="rejectUser('${u.userId}')" style="background: #df0707; padding:6px 12px;">Reject</button>
+                        <button onclick="rejectUser('${u.userId}')" style="background: #0508c7ff; padding:6px 12px; margin-right:6px;">Reject</button>
+                        <button onclick="deleteUser('${u.userId}')" style="background: #df0707ff; padding:6px 12px; color:white;">Delete</button>
                     </div>
                 </div>
             `)
@@ -193,69 +162,95 @@ async function getAllUsers() {
     }
 }
 
-// Replace old getUsersBtn handler with call to getAllUsers()
-getUsersBtn.addEventListener('click', getAllUsers);
+async function deleteUser(userId) {
+    if (!confirm(`Are you sure you want to delete ${userId}?`)) return;
 
-// --- handlers for verified / rejected buttons ---
-getVerifiedBtn.addEventListener('click', async () => {
     try {
-        const res = await fetch('http://127.0.0.1:8000/api/users/verified/');
-        const items = await res.json();
+        const res = await fetch(`http://127.0.0.1:8000/api/user/${userId}/delete/`, {
+            method: "DELETE"
+        });
 
-        if (!items.length) {
-            userList.innerHTML = "<p>No verified users found.</p>";
-            return;
+        const msg = await res.json();
+
+        if (res.ok) {
+            alert("User deleted successfully!");
+            getAllUsers();
+        } else {
+            showJSON(msg, "Delete Error");
         }
-
-        userList.innerHTML = "<h3>Verified Users</h3>" + items.map(v => {
-            const u = v.user;
-            return `
-              <div style="background:#fff;padding:10px;margin:5px;border-radius:5px;">
-                <b>${u.name}</b> (${u.age})<br>
-                <b>UserID:</b> ${u.userId}<br>
-                Email: ${u.email}<br>
-                Phone: ${u.phone}<br>
-                Address: ${u.address}<br>
-                Verified by: ${v.verifier} <br> 
-                Status: ${v.status} <br>
-                Date: ${new Date(v.timestamp).toLocaleString()}
-              </div>
-            `;
-        }).join("");
-
     } catch (err) {
-        showErrorText("Failed to load verified users");
+        showErrorText("Delete failed. Server error.");
+    }
+}
+
+const filterSelect = document.getElementById("filterSelect");
+const applyFilterBtn = document.getElementById("applyFilterBtn");
+
+applyFilterBtn.addEventListener("click", async () => {
+    const selected = filterSelect.value;
+
+    if (!selected) {
+        alert("Please select a filter.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`http://127.0.0.1:8000/api/users/?type=${selected}`);
+        const data = await res.json();
+
+        let titleText = "";
+
+        if (selected === "user") titleText = "All Users";
+        if (selected === "verified") titleText = "Verified Users";
+        if (selected === "rejected") titleText = "Rejected Users";
+
+        renderFilteredUsers(data, titleText);
+
+    } catch (error) {
+        console.error("Error:", error);
+        showErrorText("Failed to apply filter.");
     }
 });
 
-getRejectedBtn.addEventListener('click', async () => {
-    try {
-        const res = await fetch('http://127.0.0.1:8000/api/users/rejected/');
-        const items = await res.json();
 
-        if (!items.length) {
-            userList.innerHTML = "<p>No rejected users found.</p>";
-            return;
-        }
+function renderFilteredUsers(items, title) {
+    console.log("FILTER DATA:", items);
 
-        userList.innerHTML = "<h3>Rejected Users</h3>" + items.map(v => {
-            const u = v.user;
-            return `
-              <div style="background:#fff;padding:10px;margin:5px;border-radius:5px;">
-                <b>${u.name}</b> (${u.age})<br>
-                <b>UserID:</b> ${u.userId}<br>
-                Email: ${u.email}<br>
-                Phone: ${u.phone}<br>
-                Address: ${u.address}<br>
-                Rejected by: ${v.verifier} <br>
-                Status: ${v.status} <br>
-                Reason: ${v.reason || '-'}<br>
-                Date: ${new Date(v.timestamp).toLocaleString()}
-              </div>
-            `;
-        }).join("");
 
-    } catch (err) {
-        showErrorText("Failed to load rejected users");
+    if (!items.length) {
+        userList.innerHTML = `<p>No ${title} users found.</p>`;
+        return;
     }
-});
+
+    userList.innerHTML = `<h3>${title}</h3>` + items.map(v => {
+        const u = v.user || v; // for ALL USERS v = user directly
+        const verification = v.verification || v; 
+        return `
+        <div style="background:#fff;padding:10px;margin:5px;border-radius:5px;">
+            <b>${u.name}</b> (${u.age})<br>
+            <b>UserID:</b> ${u.userId}<br>
+            Email: ${u.email}<br>
+            Phone: ${u.phone}<br>
+            Address: ${u.address}<br>
+            
+            ${verification.verifier ? `Verified/Rejected By: ${verification.verifier}<br>` : ""}
+            ${verification.status ? `Status: ${verification.status}<br>` : ""}
+            ${verification.reason ? `Reason: ${verification.reason}<br>` : ""}
+            ${verification.timestamp ? `Date: ${new Date(verification.timestamp).toLocaleString()}<br>` : ""}
+
+
+            <!-- SAME BUTTONS LIKE ALL USERS -->
+            <div style="margin-top:8px; display: flex; display-direction: row;">
+                <button onclick="verifyUser('${u.userId}')" 
+                    style="background: #28a745; padding:6px 12px;margin-right:6px;">Verify</button>
+
+                <button onclick="rejectUser('${u.userId}')" 
+                    style="background: #0508c7; padding:6px 12px;margin-right:6px;">Reject</button>
+
+                <button onclick="deleteUser('${u.userId}')" 
+                    style="background: #df0707; padding:6px 12px;color:white;">Delete</button>
+            </div>
+        </div>
+        `;
+    }).join("");
+}
