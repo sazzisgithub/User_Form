@@ -27,6 +27,7 @@ DEBUG = False
 ALLOWED_HOSTS = [ 'user-form-zgph.onrender.com',
                  '127.0.0.1',
                  'localhost',
+                 "frontend-hgqi.onrender.com",
                  '.onrender.com' ]
 
 
