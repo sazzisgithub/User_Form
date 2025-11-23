@@ -36,7 +36,7 @@ form.addEventListener('submit', async (e) => {
     console.log("Sending data:", data);
 
     try {
-        const res = await fetch('https://user-form-zgph.onrender.com//api/submit/', {
+        const res = await fetch('https://user-form-zgph.onrender.com/api/submit/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),
@@ -63,7 +63,7 @@ async function searchUserById() {
     }
 
     try {
-        const res = await fetch(`https://user-form-zgph.onrender.com//api/user/${userId}/`);
+        const res = await fetch(`https://user-form-zgph.onrender.com/api/user/${userId}/`);
         const body = await res.json();
 
         if (res.ok) {
@@ -80,7 +80,7 @@ async function searchUserById() {
 async function postVerificationAction(userId, action, payload) {
     // action = 'verify' or 'reject'
     try {
-        const res = await fetch(`https://user-form-zgph.onrender.com//api/user/${userId}/${action}/`, {
+        const res = await fetch(`https://user-form-zgph.onrender.com/api/user/${userId}/${action}/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
@@ -132,7 +132,7 @@ async function rejectUser(userId) {
 // --- modify the existing Get All Users rendering to include buttons ---
 async function getAllUsers() {
     try {
-        const res = await fetch('https://user-form-zgph.onrender.com//api/users/');
+        const res = await fetch('https://user-form-zgph.onrender.com/api/users/');
         const users = await res.json();
 
         if (!users.length) {
@@ -166,7 +166,7 @@ async function deleteUser(userId) {
     if (!confirm(`Are you sure you want to delete ${userId}?`)) return;
 
     try {
-        const res = await fetch(`https://user-form-zgph.onrender.com//api/user/${userId}/delete/`, {
+        const res = await fetch(`https://user-form-zgph.onrender.com/api/user/${userId}/delete/`, {
             method: "DELETE"
         });
 
@@ -195,7 +195,7 @@ applyFilterBtn.addEventListener("click", async () => {
     }
 
     try {
-        const res = await fetch(`https://user-form-zgph.onrender.com//api/users/?type=${selected}`);
+        const res = await fetch(`https://user-form-zgph.onrender.com/api/users/?type=${selected}`);
         const data = await res.json();
 
         let titleText = "";
