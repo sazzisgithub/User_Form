@@ -9,7 +9,6 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,10 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-i@tt4r#zknq3-2&^5j*-xt+^uy!si519)9po76oc1=ai*x#aa&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [ 'user-form-zgph.onrender.com',
-                  '.onrender.com' ]
+                 '127.0.0.1',
+                 'localhost',
+                 '.onrender.com' ]
 
 
 # Application definition
