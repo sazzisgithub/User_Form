@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-i@tt4r#zknq3-2&^5j*-xt+^uy!si519)9po76oc1=ai*x#aa&
 DEBUG = True
 
 ALLOWED_HOSTS = [ 'user-form-zgph.onrender.com',
-                  'localhost',
-                  '127.0.0.1' ]
+                  '.onrender.com' ]
 
 
 # Application definition
